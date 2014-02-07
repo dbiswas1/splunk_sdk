@@ -1,0 +1,37 @@
+// Set up the job properties
+String mySearch = "search * | head 50000";
+
+// Create an argument map for the job arguments:
+JobArgs jobArgs = new JobArgs();
+jobArgs.setExecutionMode(JobArgs.ExecutionMode.NORMAL);
+
+// Create the job
+Job job = service.search(mySearch, jobArgs);
+job.enablePreview();
+job.update();
+
+// Wait for the job to be ready
+while (!job.isReady()) {
+    Thread.sleep(500);
+}
+
+// Display previews using the built-in XML parser 
+int countPreview=0;  // count the number of previews displayed
+int countBatch=0;    // count the number of times previews are retrieved
+while (!job.isDone()) {
+    JobResultsPreviewArgs previewargs = new JobResultsPreviewArgs();
+    previewargs.setCount(500);  // Get 500 previews at a time
+    previewargs.setOutputMode(JobResultsPreviewArgs.OutputMode.XML);
+
+    InputStream results =  job.getResultsPreview(previewargs);
+    ResultsReaderXml resultsReader = new ResultsReaderXml(results);
+    HashMap<String, String> event;
+    while ((event = resultsReader.getNextEvent()) != null) {
+        System.out.println("BATCH " + countBatch + "\nPREVIEW " + countPreview++ + " ********");
+        for (String key: event.keySet())
+            System.out.println("   " + key + ":  " + event.get(key));
+    }
+    countBatch++;
+    resultsReader.close();
+}
+System.out.println("Job is done with " + job.getResultCount() + " results");

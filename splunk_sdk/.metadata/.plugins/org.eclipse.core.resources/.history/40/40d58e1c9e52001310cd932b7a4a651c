@@ -1,0 +1,52 @@
+import com.splunk.*;       // The entry point to the client library
+import java.io.InputStream;
+import java.util.HashMap;
+
+public class SplunkTest {
+
+    public static void main(String[] args) {
+
+        // Create a map of arguments and add login parameters
+        ServiceArgs loginArgs = new ServiceArgs();
+        loginArgs.setUsername("dbiswas1");
+        loginArgs.setPassword("Wink92@intuit");
+        loginArgs.setHost("oprdoasas306.corp.intuit.net");
+        loginArgs.setPort(8089);
+        
+        // Create a Service instance and log in with the argument map
+        Service service = Service.connect(loginArgs);
+
+
+        // A second way to create a new Service object and log in
+        // Service service = new Service("localhost", 8089);
+        // service.login("admin", "changeme");
+
+        // A third way to create a new Service object and log in
+        // Service service = new Service(loginArgs);
+        // service.login();
+
+        // Print installed apps to the console to verify login
+       // for (Application app : service.getApplications().values()) {
+         //   System.out.println(app.getName());
+        //}
+     // Run a normal search
+        String searchQuery_normal = "index=websphere host=pprdoasas315.corp.intuit.net  network|head 5 ";
+        JobArgs jobargs = new JobArgs();
+        jobargs.setExecutionMode(JobArgs.ExecutionMode.NORMAL);
+        Job job = service.getJobs().create(searchQuery_normal, jobargs);
+
+        // Wait for the search to finish
+        while (!job.isDone()) {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        
+        
+        
+        
+    }
+}
